@@ -5,7 +5,10 @@
 The system answers security-policy questions over 1,014 NIST SP 800-53 Rev 5
 controls stored in Azure AI Search. Microsoft Agent Framework orchestrates the
 planning, retrieval, and response stages, with moderation and grounding gates.
-The project explores how these components work together in a bounded RAG workflow.
+The R&D focus is Microsoft Agent Framework: executor composition, typed messages,
+and conditional routing in a bounded RAG workflow. Azure AI Search and Azure OpenAI
+provide the supporting retrieval and inference services, building on prior experience
+with both.
 All model-backed nodes use the framework's Azure OpenAI chat client against a
 pinned Azure OpenAI deployment. The model deployment is configurable, while
 prompts, structured output contracts, and inference options are centralized.

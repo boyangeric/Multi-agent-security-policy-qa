@@ -1,4 +1,4 @@
-"""Multi-Agent Security Policy Q&A: grounded RAG experiments with Microsoft Agent Framework and Azure."""
+"""Multi-Agent Security Policy Q&A: exploring Microsoft Agent Framework for grounded RAG."""
 
 from typing import TYPE_CHECKING, Any
 

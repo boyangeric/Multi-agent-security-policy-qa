@@ -1,7 +1,8 @@
 # Multi-Agent Security Policy Q&A
 
-Personal R&D project by Eric Li, exploring **Microsoft Agent Framework**,
-**Azure AI Search**, and **Azure OpenAI** for grounded security-policy Q&A.
+Personal R&D project by Eric Li, exploring **Microsoft Agent Framework (MAF)**
+for grounded security-policy Q&A. It builds on prior experience with
+**Azure AI Search** and **Azure OpenAI**, which provide retrieval and model inference.
 
 A multi-agent RAG system that answers questions about enterprise security policies.
 A **Microsoft Agent Framework** workflow routes typed Pydantic messages through
@@ -11,12 +12,12 @@ faithfulness gate, grounded on **1,014 NIST SP 800-53 Rev 5 security controls** 
 using the framework's native chat client, with explicit determinism controls
 and a safe fallback on every failure path.
 
-## Research focus
+## Microsoft Agent Framework exploration
 
-- Explore typed agent workflows with explicit routing and bounded execution.
-- Study hybrid keyword/vector retrieval and semantic ranking in Azure AI Search.
-- Evaluate citation validity, context relevance, and answer faithfulness.
-- Investigate prompt-injection defences and fallback behavior when evidence is weak.
+- Explore MAF executors, typed messages, explicit routing, and bounded execution.
+- Integrate Azure AI Search retrieval and Azure OpenAI inference into a MAF workflow.
+- Coordinate moderation, context relevance, and faithfulness gates through the framework.
+- Validate workflow routing, citation grounding, and fallback behavior when evidence is weak.
 
 ```
 question ─► Moderation ─► Planner ─► Retrieval ─► ContextRelevance ─► Response ─► Faithfulness ─► answer
@@ -37,7 +38,7 @@ governance discussion. Sample outputs live in [evaluation/results/](evaluation/r
 ## Dataset
 
 The **NIST SP 800-53 Rev 5 control catalog** provides a public, structured corpus
-for experimenting with security-policy retrieval and evidence-based answers.
+for exercising the MAF workflow with security-policy questions and evidence-based answers.
 The project fetches the official OSCAL JSON from
 [usnistgov/oscal-content](https://github.com/usnistgov/oscal-content). After excluding
 withdrawn controls, **1,014 records** (controls + enhancements, 20 families) are

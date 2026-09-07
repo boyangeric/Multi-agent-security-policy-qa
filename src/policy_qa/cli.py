@@ -21,7 +21,10 @@ from .report import WIDTH, render_report
 from .tracing import QueryTrace
 
 app = typer.Typer(
-    help="Multi-Agent Security Policy Q&A: RAG experiments with Microsoft Agent Framework and Azure AI Search.",
+    help=(
+        "Multi-Agent Security Policy Q&A: exploring Microsoft Agent Framework, "
+        "backed by Azure AI Search and Azure OpenAI."
+    ),
     invoke_without_command=True,
 )
 
