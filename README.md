@@ -1,6 +1,7 @@
-# Multi-Agent Security Policy Q&A (Azure AI)
+# Multi-Agent Security Policy Q&A
 
-RBA AI Engineer Assessment — Eric Li
+Personal R&D project by Eric Li, exploring **Microsoft Agent Framework**,
+**Azure AI Search**, and **Azure OpenAI** for grounded security-policy Q&A.
 
 A multi-agent RAG system that answers questions about enterprise security policies.
 A **Microsoft Agent Framework** workflow routes typed Pydantic messages through
@@ -10,9 +11,12 @@ faithfulness gate, grounded on **1,014 NIST SP 800-53 Rev 5 security controls** 
 using the framework's native chat client, with explicit determinism controls
 and a safe fallback on every failure path.
 
-> **Assessment scope note:** the suggested `AYI-NEDJIMI/nist-csf-en` corpus has
-> fewer than 110 rows, so this submission uses the official 1,014-record NIST
-> SP 800-53 Rev 5 catalog to satisfy the brief's ≥500-record ingestion requirement.
+## Research focus
+
+- Explore typed agent workflows with explicit routing and bounded execution.
+- Study hybrid keyword/vector retrieval and semantic ranking in Azure AI Search.
+- Evaluate citation validity, context relevance, and answer faithfulness.
+- Investigate prompt-injection defences and fallback behavior when evidence is weak.
 
 ```
 question ─► Moderation ─► Planner ─► Retrieval ─► ContextRelevance ─► Response ─► Faithfulness ─► answer
@@ -23,8 +27,8 @@ question ─► Moderation ─► Planner ─► Retrieval ─► ContextRelevan
 Every stage is a Microsoft Agent Framework `Executor` node. Planner, Response,
 and the graders are LLM agents; Retrieval is a deliberately deterministic
 Executor — the Planner already emits structured search steps, so an LLM there
-would add latency and nondeterminism without extra reasoning. The three required
-agents (Planner → Retrieval → Response) are all present and communicate through
+would add latency and nondeterminism without extra reasoning. The core pipeline
+(Planner → Retrieval → Response) communicates through
 typed Pydantic messages.
 
 See [ARCHITECTURE.md](ARCHITECTURE.md) for the full design, security, scalability and
@@ -32,13 +36,14 @@ governance discussion. Sample outputs live in [evaluation/results/](evaluation/r
 
 ## Dataset
 
-The assessment suggests the Hugging Face `AYI-NEDJIMI/nist-csf-en` dataset, but it
-contains fewer than 110 records while the assessment requires **≥ 500 ingested
-records**. This project therefore uses the **NIST SP 800-53 Rev 5 control catalog**
-(the canonical superset that NIST CSF maps to), fetched as official OSCAL JSON from
+The **NIST SP 800-53 Rev 5 control catalog** provides a public, structured corpus
+for experimenting with security-policy retrieval and evidence-based answers.
+The project fetches the official OSCAL JSON from
 [usnistgov/oscal-content](https://github.com/usnistgov/oscal-content). After excluding
 withdrawn controls, **1,014 records** (controls + enhancements, 20 families) are
-ingested, each with a title, description and category as required.
+ingested, each with a title, description and control-family category. An ingestion
+sanity check rejects catalogs yielding fewer than 500 records to catch incomplete
+downloads or transformation regressions.
 
 ## Prerequisites
 
@@ -127,30 +132,24 @@ policy-qa ingest      # download, transform, embed, and upload the NIST catalog
 policy-qa evaluate    # run evaluation/test_queries.json and rewrite evaluation/results/
 ```
 
-### Interviewer handoff
+### Reproducing experiments
 
-Do not share a live `.env` from your personal subscription in the repository or
-in email. The intended handoff bundle is:
+Create the Azure resources described above and configure your local `.env` using
+`.env.example`. Run ingestion, then use `policy-qa evaluate` to capture a new set
+of results. The committed traces and report in `evaluation/results/` provide a
+reference run for comparing retrieval, grounding, and latency. Sample CLI output
+is also available in [evaluation/sample_usage/](evaluation/sample_usage/).
 
-- source code
-- `README.md`
-- `.env.example`
-- `ARCHITECTURE.md`
-- committed sample outputs in `evaluation/results/`
+Record deployment names, prompt versions, and retrieval thresholds when comparing
+runs. Keep Azure credentials local and out of source control.
 
-If the reviewer needs to run the system end to end, use one of these options:
-
-- best: ask them to create their own Azure resources and fill in `.env` from the template
-- acceptable: provide short-lived, least-privilege credentials for a disposable assessment resource group, then rotate or delete them after review
-
-Do not share production credentials, owner-level subscription access, or any
-non-expiring personal secrets.
+### Example output
 
 Human-readable `ask` output (abridged):
 
 ```
 ================================================================================
-POLICY AI SEARCH ASSISTANT
+MULTI-AGENT SECURITY POLICY Q&A
 ================================================================================
 User Query : What controls apply to API security?
 Status     : SUCCESS
@@ -182,7 +181,7 @@ Azure model capacity.
 
 Structured JSON logs are written to `logs/policy-qa.jsonl` by default, one line per
 agent hop and tagged with a per-query correlation ID. This keeps CLI output clean while
-retaining the required input/output audit trail:
+retaining an input/output audit trail for debugging and experiment analysis:
 
 ```bash
 tail -f logs/policy-qa.jsonl
@@ -217,7 +216,8 @@ Thresholds are environment-tunable. Azure's semantic reranker uses its native
 
 `policy-qa evaluate` runs the five test queries in
 [evaluation/test_queries.json](evaluation/test_queries.json) — the four use-case
-queries from the assessment plus one out-of-scope query that must trigger the safe
+queries covering API security, cloud data protection, access control, and logging,
+plus one out-of-scope query that must trigger the safe
 fallback. Each query is scored by:
 
 1. **Deterministic checks** — citation validity (citations ⊆ retrieved controls) and
@@ -226,6 +226,8 @@ fallback. Each query is scored by:
    groundedness, 1–5.
 
 Committed results: [evaluation/results/report.md](evaluation/results/report.md).
+These five queries are a small exploratory baseline; they do not establish
+performance across the full catalog or production workloads.
 
 ## Tests
 
@@ -243,9 +245,9 @@ pytest        # OSCAL transform (≥500 records, schema completeness), contracts
 ├── ARCHITECTURE.md                      # design, security and scalability notes
 ├── README.md
 ├── evaluation/
-│   ├── test_queries.json                # five assessment queries
+│   ├── test_queries.json                # five baseline evaluation queries
 │   ├── results/                         # committed JSON traces + Markdown report
-│   └── sample_usage/                    # interactive CLI screenshots
+│   └── sample_usage/                    # CLI examples from recorded outputs
 ├── src/policy_qa/
 │   ├── agents/
 │   │   ├── llm/                         # model-backed workflow executors
@@ -304,12 +306,12 @@ pytest        # OSCAL transform (≥500 records, schema completeness), contracts
 
 Azure AI Search Basic is billable while provisioned; chat and embedding usage are
 also metered. Review the current Azure pricing before creating resources. When
-finished, delete the dedicated assessment resource group through the Azure portal
+finished, delete the dedicated experiment resource group through the Azure portal
 and verify that no resources remain.
 
 Production infrastructure should be managed declaratively with Terraform or
 Bicep through a reviewed CI/CD workflow. Imperative provisioning and destructive
-teardown scripts are intentionally not included in this assessment repository.
+teardown scripts are not included in this research prototype.
 
 ## Limitations
 

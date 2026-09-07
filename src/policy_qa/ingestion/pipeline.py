@@ -31,7 +31,7 @@ def run_ingestion(settings: Settings) -> int:
     log_event(logger, "catalog transformed", records=len(records))
     if len(records) < MIN_RECORDS:
         raise IngestionError(
-            f"Only {len(records)} records after transformation; assessment requires >= {MIN_RECORDS}."
+            f"Only {len(records)} records after transformation; catalog sanity check requires >= {MIN_RECORDS}."
         )
 
     create_or_update_index(settings)

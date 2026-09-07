@@ -20,7 +20,10 @@ from .utils.logging_setup import setup_logging
 from .report import WIDTH, render_report
 from .tracing import QueryTrace
 
-app = typer.Typer(help="Multi-agent security policy Q&A on Azure AI.", invoke_without_command=True)
+app = typer.Typer(
+    help="Multi-Agent Security Policy Q&A: RAG experiments with Microsoft Agent Framework and Azure AI Search.",
+    invoke_without_command=True,
+)
 
 
 async def _run_query_with_status(orchestrator: "Orchestrator", question: str) -> QueryTrace:
@@ -85,7 +88,7 @@ def interactive() -> None:
     from .orchestrator import Orchestrator
 
     typer.echo("=" * WIDTH)
-    typer.echo("POLICY AI SEARCH ASSISTANT — interactive mode")
+    typer.echo("MULTI-AGENT SECURITY POLICY Q&A — interactive mode")
     typer.echo("Ask a security policy question, or type 'exit' to quit.")
     typer.echo("=" * WIDTH)
 

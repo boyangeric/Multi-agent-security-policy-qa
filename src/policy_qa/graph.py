@@ -1,6 +1,6 @@
 """Small, typed Agent Framework workflow for grounded policy Q&A.
 
-The three assessment agents are Planner, Retrieval, and Response. Moderation,
+The core workflow stages are Planner, Retrieval, and Response. Moderation,
 context relevance, and faithfulness are bounded safety gates. No stage loops:
 an unfaithful answer goes directly to the deterministic fallback.
 """

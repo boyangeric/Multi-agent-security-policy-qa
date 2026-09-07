@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "policy-qa"
 version = "1.0.0"
-description = "Multi-agent security policy Q&A system on Azure AI"
+description = "Multi-Agent Security Policy Q&A: R&D with Microsoft Agent Framework, Azure AI Search, and Azure OpenAI"
 requires-python = ">=3.11"
 dependencies = [
     "agent-framework-openai>=1.10.0,<2",

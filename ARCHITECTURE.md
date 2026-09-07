@@ -4,7 +4,8 @@
 
 The system answers security-policy questions over 1,014 NIST SP 800-53 Rev 5
 controls stored in Azure AI Search. Microsoft Agent Framework orchestrates the
-three agents required by the assessment, with small safety gates around them.
+planning, retrieval, and response stages, with moderation and grounding gates.
+The project explores how these components work together in a bounded RAG workflow.
 All model-backed nodes use the framework's Azure OpenAI chat client against a
 pinned Azure OpenAI deployment. The model deployment is configurable, while
 prompts, structured output contracts, and inference options are centralized.
@@ -47,9 +48,8 @@ Retrieval is a *deliberately deterministic* Executor. Because the Planner has
 already produced structured `SearchStep` queries, letting an LLM re-decide what
 to search would only add latency and nondeterminism with no extra reasoning —
 so the Retrieval Agent applies the plan to Azure AI Search exactly and returns
-typed results. This is a determinism decision (see below), not a missing agent:
-the required Planner → Retrieval → Response trio is present and communicates
-through typed Pydantic messages.
+typed results. The Planner → Retrieval → Response pipeline uses typed Pydantic
+messages to keep stage boundaries explicit and testable.
 
 Azure AI Search combines keyword and HNSW vector search, then applies the native
 L2 semantic ranker through the index's `semantic-default` configuration. The
@@ -124,5 +124,5 @@ Configuration is environment-driven, including deployments, index name, top-k,
 the native semantic reranker threshold, 0–1 grader thresholds, semantic ranker
 use, workflow bounds, and logging. Production infrastructure should be managed
 declaratively with Terraform or Bicep through a reviewed CI/CD workflow; this
-assessment documents the required Azure resources without including imperative
+research prototype documents the required Azure resources without including imperative
 provisioning or destructive teardown scripts.

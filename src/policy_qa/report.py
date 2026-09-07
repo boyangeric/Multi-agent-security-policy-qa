@@ -49,7 +49,7 @@ def render_report(trace: QueryTrace, settings: Settings) -> str:
 
     out: list[str] = []
     out.append("=" * WIDTH)
-    out.append("POLICY AI SEARCH ASSISTANT")
+    out.append("MULTI-AGENT SECURITY POLICY Q&A")
     out.append("=" * WIDTH)
     out.append(f"User Query : {trace.question}")
     out.append(f"Status     : {status}")

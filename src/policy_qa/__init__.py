@@ -1,4 +1,4 @@
-"""Multi-agent security policy Q&A system on Azure AI."""
+"""Multi-Agent Security Policy Q&A: grounded RAG experiments with Microsoft Agent Framework and Azure."""
 
 from typing import TYPE_CHECKING, Any
 
